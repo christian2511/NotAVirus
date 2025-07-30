@@ -8,16 +8,22 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: black;
+      background: lightblue;
       overflow: hidden;
       height: 100%;
       width: 100%;
       user-select: none;
     }
+    html, body {
+      touch-action: manipulation;      /* disables pinch zoom on many browsers */
+      -ms-touch-action: manipulation;  /* for IE/Edge */
+      overscroll-behavior: none;       /* optional: stops overscroll glow */
+    }
+
 
     #message {
       position: absolute;
-      font-size: 6em;      /* doubled from 4em */
+      font-size: 4em;      /* doubled from 4em */
       font-weight: bold;
       white-space: nowrap;
       z-index: 10;
