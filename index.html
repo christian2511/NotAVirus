@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Click the Flowers Game - Exponential Spawn</title>
+  <title>Click the Flowers Game - Extra Big</title>
   <style>
     html, body {
       margin: 0;
@@ -16,7 +16,7 @@
 
     #message {
       position: absolute;
-      font-size: 4em;
+      font-size: 8em;      /* doubled from 4em */
       font-weight: bold;
       white-space: nowrap;
       z-index: 10;
@@ -29,16 +29,16 @@
       left: 50%;
       transform: translateX(-50%);
       color: white;
-      font-size: 2em;
+      font-size: 4em;       /* doubled from 2em */
       font-weight: bold;
       z-index: 100;
       user-select: none;
       font-family: sans-serif;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 30px;            /* doubled gap */
       background: rgba(0,0,0,0.5);
-      padding: 5px 20px;
+      padding: 10px 40px;   /* doubled padding */
       border-radius: 10px;
     }
 
@@ -48,7 +48,7 @@
 
     .flower {
       position: absolute;
-      font-size: 3em;
+      font-size: 6em;      /* doubled from 3em */
       animation: float 5s infinite ease-in-out alternate;
       pointer-events: auto;
       cursor: pointer;
@@ -66,7 +66,7 @@
 </head>
 <body>
   <div id="topBar">
-    Click all the flowers: <span id="score">0</span>
+    Click the flowers: <span id="score">0</span>
   </div>
 
   <div id="message">Take your Drugs, NOW!</div>
@@ -80,7 +80,7 @@
     let x = 100, y = 100;
     let dx = 2, dy = 2;
 
-    const initialFlowerCount = 30;
+    const initialFlowerCount = 20;
     let spawningRapidly = false;
 
     // Spawn interval parameters
@@ -94,7 +94,7 @@
     }
 
     // Flower size for edge offset calculation
-    const flowerSize = 48; // approx 3em in pixels (depends on font but safe margin)
+    const flowerSize = 96; // doubled from 48 (6em approx)
 
     // Returns a safe random position, avoiding edges
     function randomSafePosition() {
