@@ -1,31 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bouncing Reminder with Flowers</title>
+  <meta charset="UTF-8" />
+  <title>Click the Flowers Game - Exponential Spawn</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: blueviolet;
+      background: black;
       overflow: hidden;
       height: 100%;
       width: 100%;
+      user-select: none;
     }
 
     #message {
       position: absolute;
-      font-size: 2em;
+      font-size: 4em;
       font-weight: bold;
       white-space: nowrap;
       z-index: 10;
+      user-select: none;
+    }
+
+    #topBar {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 2em;
+      font-weight: bold;
+      z-index: 100;
+      user-select: none;
+      font-family: sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 20px;
+      border-radius: 10px;
+    }
+
+    #score {
+      color: #ff69b4;
     }
 
     .flower {
       position: absolute;
-      font-size: 1.5em;
+      font-size: 3em;
       animation: float 5s infinite ease-in-out alternate;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: pointer;
     }
 
     @keyframes float {
@@ -39,28 +65,94 @@
   </style>
 </head>
 <body>
+  <div id="topBar">
+    Click all the flowers: <span id="score">0</span>
+  </div>
+
   <div id="message">Take your Drugs, NOW!</div>
 
   <script>
     const message = document.getElementById('message');
+    const scoreEl = document.getElementById('score');
+    const flowerEmojis = ['🌸', '🌼', '🌻', '🌺'];
+    let flowers = [];
+    let score = 0;
     let x = 100, y = 100;
     let dx = 2, dy = 2;
 
-    const flowerEmojis = ['🌸', '🌼', '🌻', '🌺'];
-    const flowerCount = 90;
+    const initialFlowerCount = 30;
+    let spawningRapidly = false;
 
-    for (let i = 0; i < flowerCount; i++) {
-      const flower = document.createElement('div');
-      flower.classList.add('flower');
-      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
-      flower.style.left = `${Math.random() * window.innerWidth}px`;
-      flower.style.top = `${Math.random() * window.innerHeight}px`;
-      flower.style.animationDelay = `${Math.random() * 5}s`;
-      document.body.appendChild(flower);
-    }
+    // Spawn interval parameters
+    let spawnInterval = 1000;  // initial 1 sec
+    let spawnDecayRate = 0.9;  // decay factor per spawn (exponential speedup)
+    let minSpawnInterval = 50; // minimum interval 50 ms
+    let rapidSpawnTimeout;
 
     function randomColor() {
       return `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
+    }
+
+    // Flower size for edge offset calculation
+    const flowerSize = 48; // approx 3em in pixels (depends on font but safe margin)
+
+    // Returns a safe random position, avoiding edges
+    function randomSafePosition() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // Leave margin so flowers don't spawn stuck on edges
+      const margin = flowerSize * 1.5;
+
+      const left = Math.random() * (w - 2 * margin) + margin;
+      const top = Math.random() * (h - 2 * margin) + margin;
+
+      return { left, top };
+    }
+
+    function createFlower() {
+      const flower = document.createElement('div');
+      flower.classList.add('flower');
+      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+
+      const pos = randomSafePosition();
+      flower.style.left = `${pos.left}px`;
+      flower.style.top = `${pos.top}px`;
+      flower.style.animationDelay = `${Math.random() * 5}s`;
+
+      flower.addEventListener('click', () => {
+        flower.remove();
+        score++;
+        scoreEl.textContent = score;
+        flowers = flowers.filter(f => f !== flower);
+
+        if (flowers.length === 0 && !spawningRapidly) {
+          startRapidSpawning();
+        }
+      });
+
+      document.body.appendChild(flower);
+      flowers.push(flower);
+    }
+
+    function spawnInitialFlowers() {
+      for (let i = 0; i < initialFlowerCount; i++) {
+        createFlower();
+      }
+    }
+
+    function startRapidSpawning() {
+      spawningRapidly = true;
+
+      function spawnAndAccelerate() {
+        createFlower();
+        // Decrease interval exponentially
+        spawnInterval = Math.max(minSpawnInterval, spawnInterval * spawnDecayRate);
+        clearTimeout(rapidSpawnTimeout);
+        rapidSpawnTimeout = setTimeout(spawnAndAccelerate, spawnInterval);
+      }
+
+      spawnAndAccelerate();
     }
 
     function move() {
@@ -93,10 +185,14 @@
       requestAnimationFrame(move);
     }
 
+    // Initial color change for message every 0.5 sec (only if not rapid spawning)
     setInterval(() => {
-      message.style.color = randomColor();
+      if (!spawningRapidly) {
+        message.style.color = randomColor();
+      }
     }, 500);
 
+    spawnInitialFlowers();
     move();
 
     window.addEventListener('resize', () => {
