@@ -13,11 +13,6 @@
       width: 100%;
       user-select: none;
     }
-    html, body {
-      touch-action: manipulation;      /* disables pinch zoom on many browsers */
-      
-    }
-
 
     #message {
       position: absolute;
@@ -85,7 +80,7 @@
     let x = 100, y = 100;
     let dx = 2, dy = 2;
 
-    const initialFlowerCount = 20;
+    const initialFlowerCount = 30;
     let spawningRapidly = false;
 
     // Spawn interval parameters
@@ -139,7 +134,7 @@
       document.body.appendChild(flower);
       flowers.push(flower);
     }
-    
+
     function spawnInitialFlowers() {
       for (let i = 0; i < initialFlowerCount; i++) {
         createFlower();
@@ -196,7 +191,7 @@
         message.style.color = randomColor();
       }
     }, 500);
-    // Zoom out as much as allowed
+
     spawnInitialFlowers();
     move();
 
