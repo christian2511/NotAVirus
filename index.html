@@ -141,7 +141,7 @@
       document.body.appendChild(flower);
       flowers.push(flower);
     }
-
+    
     function spawnInitialFlowers() {
       for (let i = 0; i < initialFlowerCount; i++) {
         createFlower();
@@ -198,6 +198,11 @@
         message.style.color = randomColor();
       }
     }, 500);
+    // Zoom out as much as allowed
+    setTimeout(() => {
+      const vp = document.querySelector('meta[name=viewport]');
+      vp.setAttribute("content", "width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=no");
+    }, 100);
 
     spawnInitialFlowers();
     move();
