@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bouncing Reminder with Flowers</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: blueviolet;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+
+    #message {
+      position: absolute;
+      font-size: 2em;
+      font-weight: bold;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .flower {
+      position: absolute;
+      font-size: 1.5em;
+      animation: float 5s infinite ease-in-out alternate;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      from {
+        transform: translateY(0px);
+      }
+      to {
+        transform: translateY(-30px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="message">Take your Drugs, NOW!</div>
+
+  <script>
+    const message = document.getElementById('message');
+    let x = 100, y = 100;
+    let dx = 2, dy = 2;
+
+    const flowerEmojis = ['🌸', '🌼', '🌻', '🌺'];
+    const flowerCount = 90;
+
+    for (let i = 0; i < flowerCount; i++) {
+      const flower = document.createElement('div');
+      flower.classList.add('flower');
+      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+      flower.style.left = `${Math.random() * window.innerWidth}px`;
+      flower.style.top = `${Math.random() * window.innerHeight}px`;
+      flower.style.animationDelay = `${Math.random() * 5}s`;
+      document.body.appendChild(flower);
+    }
+
+    function randomColor() {
+      return `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
+    }
+
+    function move() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const mw = message.offsetWidth;
+      const mh = message.offsetHeight;
+
+      x += dx;
+      y += dy;
+
+      let bounced = false;
+
+      if (x + mw >= w || x <= 0) {
+        dx *= -1;
+        bounced = true;
+      }
+      if (y + mh >= h || y <= 0) {
+        dy *= -1;
+        bounced = true;
+      }
+
+      if (bounced) {
+        message.style.color = randomColor();
+      }
+
+      message.style.left = x + 'px';
+      message.style.top = y + 'px';
+
+      requestAnimationFrame(move);
+    }
+
+    setInterval(() => {
+      message.style.color = randomColor();
+    }, 500);
+
+    move();
+
+    window.addEventListener('resize', () => {
+      x = Math.min(x, window.innerWidth - message.offsetWidth);
+      y = Math.min(y, window.innerHeight - message.offsetHeight);
+    });
+  </script>
+</body>
+</html>
