@@ -1,119 +1,169 @@
-<!DOCTYPE html>
+# Create a single-file website: meds_confetti.html
+html_content = """<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=0.1, maximum-scale=0.1, user-scalable=no">
-
-  <title>Bouncing Reminder with Clickable Flowers</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Meds Confetti Reminder 🎉</title>
+  <meta name="theme-color" content="#111827" />
   <style>
+    :root {
+      --bg-start: #111827; /* slate-900 */
+      --bg-end: #1f2937;   /* slate-800 */
+      --accent: #f59e0b;   /* amber-500 */
+      --text: #f8fafc;     /* slate-50 */
+      --subtext: #e5e7eb;  /* gray-200 */
+      --glass: rgba(255,255,255,0.08);
+      --blur: 12px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
+      height: 100%;
       margin: 0;
       padding: 0;
-      background: lightblue;
-      overflow: hidden;
-      height: 100%;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(120% 120% at 80% 0%, var(--bg-end) 0%, var(--bg-start) 60%);
+      color: var(--text);
+    }
+    .wrap {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 16px);
+    }
+    .card {
       width: 100%;
+      max-width: 680px;
+      text-align: center;
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      transform: translateZ(0); /* promote to its own layer for smoother anim */
+      animation: floatIn 600ms cubic-bezier(.2,.8,.2,1) both;
     }
-
-    #message {
-      position: absolute;
-      font-size: 4em;  /* doubled from 2em */
-      font-weight: bold;
-      white-space: nowrap;
-      z-index: 10;
-      user-select: none;
+    @keyframes floatIn {
+      from { opacity: 0; transform: translate3d(0, 12px, 0) scale(.98); }
+      to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
     }
-
-    .flower {
-      position: absolute;
-      font-size: 18em;  /* doubled from 1.5em */
-      animation: float 5s infinite ease-in-out alternate;
-      pointer-events: auto;
+    h1 {
+      margin: 0;
+      line-height: 1.1;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      font-size: clamp(28px, 7vw, 56px);
+      text-transform: uppercase;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+    }
+    .accent {
+      display: inline-block;
+      padding: .15em .4em;
+      border-radius: .5em;
+      background: linear-gradient(90deg, #f97316, #f59e0b, #fde047);
+      color: #111827;
+      mix-blend-mode: screen;
+    }
+    p.sub {
+      margin: 14px auto 0;
+      font-size: clamp(16px, 4.5vw, 24px);
+      color: var(--subtext);
+      opacity: .95;
+      letter-spacing: .2px;
+    }
+    .btn {
+      margin-top: 18px;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 0;
+      border-radius: 999px;
+      color: #111827;
+      background: #ffffff;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
       cursor: pointer;
-      user-select: none;
     }
-
-    @keyframes float {
-      from {
-        transform: translateY(0px);
-      }
-      to {
-        transform: translateY(-30px);
-      }
+    .btn:active { transform: scale(0.98); }
+    .disclaimer {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+      opacity: .8;
+    }
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+      .card { animation: none; }
     }
   </style>
 </head>
 <body>
-  <div id="message">Take your Drugs, NOW!</div>
+  <div class="wrap">
+    <main class="card" role="main" aria-live="polite">
+      <h1><span class="accent">TAKE YOUR DRUGS GIRLY POP!!</span></h1>
+      <p class="sub">please....</p>
+      <button class="btn" id="replay" aria-label="Replay confetti">Replay confetti</button>
+      <div class="disclaimer">Friendly one-time reminder 💊</div>
+    </main>
+  </div>
 
+  <!-- Confetti library (loaded from a fast CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
-    const message = document.getElementById('message');
-    let x = 100, y = 100;
-    let dx = 2, dy = 2;
+    (function () {
+      const jitter = () => 0.2 + Math.random() * 0.2; // slight randomness per burst
 
-    const flowerEmojis = ['🌸', '🌼', '🌻', '🌺'];
-    const flowerCount = 30;
+      function burst(durationMs = 2600) {
+        const end = Date.now() + durationMs;
+        function frame() {
+          // Left & right cannons
+          confetti({
+            startVelocity: 45,
+            spread: 70,
+            particleCount: 12,
+            scalar: 1.1,
+            ticks: 140,
+            origin: { x: 0, y: jitter() }
+          });
+          confetti({
+            startVelocity: 45,
+            spread: 70,
+            particleCount: 12,
+            scalar: 1.1,
+            ticks: 140,
+            origin: { x: 1, y: jitter() }
+          });
+          // Center poof
+          confetti({
+            particleCount: 20,
+            spread: 360,
+            startVelocity: 35,
+            scalar: 1.0,
+            origin: { x: 0.5, y: 0.3 }
+          });
 
-    for (let i = 0; i < flowerCount; i++) {
-      const flower = document.createElement('div');
-      flower.classList.add('flower');
-      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
-      flower.style.left = `${Math.random() * window.innerWidth}px`;
-      flower.style.top = `${Math.random() * window.innerHeight}px`;
-      flower.style.animationDelay = `${Math.random() * 5}s`;
+          if (Date.now() < end && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            requestAnimationFrame(frame);
+          }
+        }
+        frame();
+      }
 
-      // Add click event to remove the flower on click
-      flower.addEventListener('click', () => {
-        flower.remove();
+      // Run on load
+      window.addEventListener('load', () => {
+        burst();
+        if (navigator.vibrate) {
+          // brief haptic nudge on Android
+          navigator.vibrate(120);
+        }
       });
 
-      document.body.appendChild(flower);
-    }
-
-    function randomColor() {
-      return `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
-    }
-
-    function move() {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const mw = message.offsetWidth;
-      const mh = message.offsetHeight;
-
-      x += dx;
-      y += dy;
-
-      let bounced = false;
-
-      if (x + mw >= w || x <= 0) {
-        dx *= -1;
-        bounced = true;
-      }
-      if (y + mh >= h || y <= 0) {
-        dy *= -1;
-        bounced = true;
-      }
-
-      if (bounced) {
-        message.style.color = randomColor();
-      }
-
-      message.style.left = x + 'px';
-      message.style.top = y + 'px';
-
-      requestAnimationFrame(move);
-    }
-
-    setInterval(() => {
-      message.style.color = randomColor();
-    }, 500);
-
-    move();
-
-    window.addEventListener('resize', () => {
-      x = Math.min(x, window.innerWidth - message.offsetWidth);
-      y = Math.min(y, window.innerHeight - message.offsetHeight);
-    });
+      // Replay button (in case they want to see it again)
+      document.getElementById('replay').addEventListener('click', () => burst(1800), { passive: true });
+    })();
   </script>
 </body>
 </html>
+"""
+with open("/mnt/data/meds_confetti.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+print("File created at /mnt/data/meds_confetti.html")
