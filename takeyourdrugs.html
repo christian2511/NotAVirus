@@ -2,106 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bouncing Reminder with Flowers</title>
+  <title>Confetti Reminder</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: blueviolet;
-      overflow: hidden;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
       height: 100%;
       width: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      font-family: system-ui, sans-serif;
     }
 
     #message {
-      position: absolute;
       font-size: 2em;
       font-weight: bold;
-      white-space: nowrap;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.4);
       z-index: 10;
     }
 
-    .flower {
-      position: absolute;
-      font-size: 1.5em;
-      animation: float 5s infinite ease-in-out alternate;
-      pointer-events: none;
+    #sub {
+      font-size: 1.2em;
+      opacity: 0.9;
+      margin-top: 10px;
     }
 
-    @keyframes float {
-      from {
-        transform: translateY(0px);
-      }
-      to {
-        transform: translateY(-30px);
-      }
+    #replay {
+      margin-top: 20px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: white;
+      color: #111;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    #replay:active {
+      transform: scale(0.96);
     }
   </style>
 </head>
 <body>
-  <div id="message">Take your Drugs, NOW!</div>
+  <div>
+    <div id="message">🎉 TAKE YOUR DRUGS GIRLY POP!! 🎉</div>
+    <div id="sub">please....</div>
+    <button id="replay">Replay Confetti</button>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
-    const message = document.getElementById('message');
-    let x = 100, y = 100;
-    let dx = 2, dy = 2;
-
-    const flowerEmojis = ['🌸', '🌼', '🌻', '🌺'];
-    const flowerCount = 90;
-
-    for (let i = 0; i < flowerCount; i++) {
-      const flower = document.createElement('div');
-      flower.classList.add('flower');
-      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
-      flower.style.left = `${Math.random() * window.innerWidth}px`;
-      flower.style.top = `${Math.random() * window.innerHeight}px`;
-      flower.style.animationDelay = `${Math.random() * 5}s`;
-      document.body.appendChild(flower);
+    function launchConfetti(duration = 2500) {
+      const end = Date.now() + duration;
+      (function frame() {
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
     }
 
-    function randomColor() {
-      return `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
-    }
+    // Launch when page loads
+    window.addEventListener('load', () => {
+      launchConfetti();
+      if (navigator.vibrate) navigator.vibrate(120);
+    });
 
-    function move() {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const mw = message.offsetWidth;
-      const mh = message.offsetHeight;
-
-      x += dx;
-      y += dy;
-
-      let bounced = false;
-
-      if (x + mw >= w || x <= 0) {
-        dx *= -1;
-        bounced = true;
-      }
-      if (y + mh >= h || y <= 0) {
-        dy *= -1;
-        bounced = true;
-      }
-
-      if (bounced) {
-        message.style.color = randomColor();
-      }
-
-      message.style.left = x + 'px';
-      message.style.top = y + 'px';
-
-      requestAnimationFrame(move);
-    }
-
-    setInterval(() => {
-      message.style.color = randomColor();
-    }, 500);
-
-    move();
-
-    window.addEventListener('resize', () => {
-      x = Math.min(x, window.innerWidth - message.offsetWidth);
-      y = Math.min(y, window.innerHeight - message.offsetHeight);
+    // Replay button
+    document.getElementById('replay').addEventListener('click', () => {
+      launchConfetti(1800);
     });
   </script>
 </body>
